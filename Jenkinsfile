@@ -1,23 +1,24 @@
-#!groovy
 
 pipeline {
-	agent none
+	agent any
   stages {
-  	stage('Maven Install') {
-    	agent {
-      	docker {
-        	image 'maven:3.5.0'
+  	stage('Checkout') {
+    	
+      git url :'https://github.com/polotacki/jgsu-spring-petclinic.git'
+                branch:'main'
         }
-      }
-      steps {
-      	sh 'mvn clean install'
-      }
+  }
+      
+    
+    stage(Build') {
+    	sh './mvnw clean package'
     }
-    stage('Docker Build') {
-    	agent any
-      steps {
-      	sh 'docker build -t polotacki/jsu-spring-petclinic:latest .'
-      }
-    }
+          post{
+                  always{
+                  junit'**/target/surefire-reports/TEST-*.xml'
+                          archiveArtifacts 'target/*.jar'
+                  
+                  }
+          }
   }
 }
